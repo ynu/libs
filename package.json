@@ -1,0 +1,24 @@
+{
+  "name": "ynu-libs",
+  "version": "1.0.0",
+  "description": "云南大学常用开发函数库 - ESOP API等",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ynu/libs.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ynu/libs/issues"
+  },
+  "homepage": "https://github.com/ynu/libs#readme",
+  "dependencies": {
+    "abort-controller": "^3.0.0",
+    "debug": "^4.3.2",
+    "node-fetch": "^3.0.0"
+  }
+}

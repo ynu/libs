@@ -1,6 +1,6 @@
 {
   "name": "ynu-libs",
-  "version": "1.0.0",
+  "version": "1.1.2",
   "description": "云南大学常用开发函数库 - ESOP API等",
   "main": "index.js",
   "scripts": {
@@ -18,7 +18,8 @@
   "homepage": "https://github.com/ynu/libs#readme",
   "dependencies": {
     "abort-controller": "^3.0.0",
+    "babel-polyfill": "^6.26.0",
     "debug": "^4.3.2",
-    "node-fetch": "^3.0.0"
+    "node-fetch": "^2.6.1"
   }
 }

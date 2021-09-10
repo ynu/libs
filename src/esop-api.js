@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /**
  * YNU ESOP API
  */
@@ -91,7 +92,8 @@ const handleEsopResult = async (res, singleData = true) => {
 };
 
 /**
- *
+ * 根据教工号查询教职工人事基本信息
+ * @see http://docs.api.ynu.edu.cn/esop/api-jzg/query_jzg_jbxx.html
  * @param {String} zgh 教工号
  * @returns 响应对象
  * {
@@ -153,8 +155,121 @@ const jzgById = async (zgh) => {
   };
 };
 
+/**
+ * 获取人事系统组织机构数据
+ * @see http://docs.api.ynu.edu.cn/esop/api-jzg/xzjg_jzg.html
+ * @returns 响应对象
+ * {
+ *    ret,
+ *    data,
+ *    msg,
+ * }
+ */
+const rs_zzjg = async () => {
+  const url = `${HOST}do/api/call/xzjg_jzg`;
+
+  let result = {
+    ret: -1,
+    data: null,
+    msg: '',
+  };
+  try {
+    const res = await fetchWithTimeout(url, {
+      method: 'POST',
+      headers: {
+        appid: ESOP_APPID,
+        accessToken: ESOP_TOKEN,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({}),
+    });
+    result = await handleEsopResult(res, false);
+  } catch (error) {
+    // if (error instanceof fetch.AbortError) {
+    warn('ERROR::', error);
+    result.msg = `连接超时(${url})`;
+    // }
+  }
+  return result;
+};
+
+/**
+ * 根据所在单位代码由人事系统获取在职教职工列表
+ * @see http://docs.api.ynu.edu.cn/esop/api-jzg/query_jzg_jbxx.html
+ * @param {String} szdwdm 所在单位代码
+ * @returns 教职工列表
+ */
+const list_rs_zzjzg_by_dw = async (szdwdm) => {
+  const url = `${HOST}do/api/call/query_jzg`;
+
+  let result = {
+    ret: -1,
+    data: null,
+    msg: '',
+  };
+  try {
+    const res = await fetchWithTimeout(url, {
+      method: 'POST',
+      headers: {
+        appid: ESOP_APPID,
+        accessToken: ESOP_TOKEN,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        szdwdm,
+        dqztdm: '22', // 在职状态
+      }),
+    });
+    result = await handleEsopResult(res, false);
+  } catch (error) {
+    // if (error instanceof fetch.AbortError) {
+    warn('ERROR::', error);
+    result.msg = `连接超时(${url})`;
+    // }
+  }
+  return result;
+};
+
+/**
+  * 查询ids帐号基本信息
+  * @param {String} userid 帐号id
+  * @returns 帐号信息
+  */
+const idsUserById = async (userid) => {
+  const url = `${HOST}do/api/call/zhjbxx_tysfrz`;
+
+  let result = {
+    ret: -1,
+    data: null,
+    msg: '',
+  };
+  try {
+    const res = await fetchWithTimeout(url, {
+      method: 'POST',
+      headers: {
+        appid: ESOP_APPID,
+        accessToken: ESOP_TOKEN,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userid,
+      }),
+    });
+    result = await handleEsopResult(res);
+  } catch (error) {
+    // if (error instanceof fetch.AbortError) {
+    warn('ERROR::', error);
+    result.msg = `连接超时(${url})`;
+    // }
+  }
+  return result;
+};
+
 module.exports = {
   fetchWithTimeout,
   handleEsopResult,
   jzgById,
+  rs_zzjg,
+  list_rs_zzjzg_by_dw,
+  idsUserById,
 };

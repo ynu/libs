@@ -57,8 +57,16 @@ const create = async (user) => {
     body: JSON.stringify(user),
   });
   const { errcode, errmsg } = await res.json();
-  if (errcode) warn('create失败::', `${errmsg}(${errcode})`);
-  return errcode;
+  switch (errcode) {
+    case 0:
+      return 0;
+    case 40066:
+      warn(`create失败：不合法的部门列表:${user.department}(${errcode})`);
+      return errcode;
+    default:
+      warn('create失败::', `${errmsg}(${errcode})`);
+      return errcode;
+  }
 };
 
 /**

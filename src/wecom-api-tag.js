@@ -3,12 +3,13 @@
  * @see https://open.work.weixin.qq.com/api/doc/90000/90135/90209
  */
 const fetch = require('node-fetch');
-// const debug = require('debug')('ynu-libs:wecom-api-tag:debug');
+const debug = require('debug')('ynu-libs:wecom-api-tag:debug');
 const warn = require('debug')('ynu-libs:wecom-api-tag:warn');
 const { getToken } = require('./wecom-api');
 
 const qyHost = 'https://qyapi.weixin.qq.com/cgi-bin';
 
+const { CONTACTS_SECRET, SECRET } = process.env;
 
 /**
  * 增加标签成员
@@ -18,7 +19,9 @@ const qyHost = 'https://qyapi.weixin.qq.com/cgi-bin';
  * @returns 错误代码
  */
 const addTagUsers = async (tagid, userlist, partylist = []) => {
-  const token = await getToken();
+  // 由于只能由通讯录同步应用操作全局标签，此处使用通讯录同步的secret
+  debug('getToken from secret::', CONTACTS_SECRET || SECRET);
+  const token = await getToken(CONTACTS_SECRET || SECRET);
   const res = await fetch(`${qyHost}/tag/addtagusers?access_token=${token}`, {
     method: 'POST',
     body: JSON.stringify({
@@ -33,6 +36,9 @@ const addTagUsers = async (tagid, userlist, partylist = []) => {
       return 0;
     case 40070:
       warn(`addTagUsers失败：all list invalid:${userlist},${partylist}`);
+      return errcode;
+    case 81011:
+      warn('addTagUsers失败：无权限操作标签（81011）。请将通讯录同步secret设置给环境变量CONTACTS_SECRET。');
       return errcode;
     default:
       warn('addTagUsers失败::', `${errmsg}(${errcode})`);

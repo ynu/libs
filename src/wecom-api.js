@@ -12,10 +12,12 @@ const qyHost = 'https://qyapi.weixin.qq.com/cgi-bin';
 
 
 /**
-  * 获取token
-  */
-const getToken = async () => {
-  const res = await fetch(`${qyHost}/gettoken?corpid=${CORP_ID}&corpsecret=${SECRET}`);
+ * 获取token。
+ * @param {String}} secret 用于获取TOKEN的secret，默认为环境变量中的SECRET
+ * @returns access_token
+ */
+const getToken = async (secret = SECRET) => {
+  const res = await fetch(`${qyHost}/gettoken?corpid=${CORP_ID}&corpsecret=${secret}`);
   const result = await res.json();
   if (!result.errcode) return result.access_token;
 

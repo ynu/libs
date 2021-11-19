@@ -46,6 +46,40 @@ const addTagUsers = async (tagid, userlist, partylist = []) => {
   }
 };
 
+/**
+ * 创建标签
+ * @param {String}} tagname 标签名称
+ * @param {String}} tagid 标签id，可选
+ * @returns
+ */
+const create = async (tagname, tagid) => {
+  // 由于只能由通讯录同步应用操作全局标签，此处使用通讯录同步的secret
+  debug('getToken from secret::', CONTACTS_SECRET || SECRET);
+  const token = await getToken(CONTACTS_SECRET || SECRET);
+  const res = await fetch(`${qyHost}/tag/create?access_token=${token}`, {
+    method: 'POST',
+    body: JSON.stringify({
+      tagname,
+      tagid,
+    }),
+  });
+  const { errcode, errmsg } = await res.json();
+  switch (errcode) {
+    case 0:
+      return 0;
+    case 40068:
+      warn(`create失败：指定的ID（${tagid}）已存在`);
+      return errcode;
+    case 81011:
+      warn('create失败：无权限操作标签（81011）。请将通讯录同步secret设置给环境变量CONTACTS_SECRET。');
+      return errcode;
+    default:
+      warn('create失败::', `${errmsg}(${errcode})`);
+      return errcode;
+  }
+};
+
 module.exports = {
   addTagUsers,
+  create,
 };

@@ -65,6 +65,7 @@ const handleEsopResult = async (res, singleData = true) => {
         ...esopResult,
         ret: 0,
         data: singleData ? result.dataSet[0] : result.dataSet,
+        pageInfo: result.pageInfo,
       };
       break;
     }
@@ -231,6 +232,38 @@ const list_rs_zzjzg_by_dw = async (szdwdm) => {
 };
 
 /**
+ * 查询教职工信息
+ * @param {Object} parmas 查询参数 @see http://docs.api.ynu.edu.cn/esop/api-jzg/query_jzg_jbxx.html
+ */
+const query_jzg = async (parmas) => {
+  const url = `${HOST}do/api/call/query_jzg`;
+
+  let result = {
+    ret: -1,
+    data: null,
+    msg: '',
+  };
+  try {
+    const res = await fetchWithTimeout(url, {
+      method: 'POST',
+      headers: {
+        appid: ESOP_APPID,
+        accessToken: ESOP_TOKEN,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(parmas),
+    });
+    result = await handleEsopResult(res, false);
+  } catch (error) {
+    // if (error instanceof fetch.AbortError) {
+    warn('ERROR::', error);
+    result.msg = `连接超时(${url})`;
+    // }
+  }
+  return result;
+};
+
+/**
   * 查询ids帐号基本信息
   * @param {String} userid 帐号id
   * @returns 帐号信息
@@ -265,6 +298,160 @@ const idsUserById = async (userid) => {
   return result;
 };
 
+/**
+  * 根据院系代码由本科教务系统获取特定年级本科生列表
+  * @param {String} yxdm 所在单位代码
+  * @param {Number} xznj 现在年级
+  * @param {String} sfzj 是否在籍，1为是，0为否，默认为1。
+  * @returns 本科生列表
+  */
+// eslint-disable-next-line camelcase
+const list_bks_by_yx_nj = async (yxdm, xznj, sfzj = '1') => {
+  const url = `${HOST}do/api/call/query_bks`;
+
+  let result = {
+    ret: -1,
+    data: null,
+    msg: '',
+  };
+  try {
+    const res = await fetchWithTimeout(url, {
+      method: 'POST',
+      headers: {
+        appid: ESOP_APPID,
+        accessToken: ESOP_TOKEN,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        yxdm,
+        xznj,
+        sfzj, // 是否在籍
+      }),
+    });
+    result = await handleEsopResult(res, false);
+  } catch (error) {
+    // if (error instanceof fetch.AbortError) {
+    warn('ERROR::', error);
+    result.msg = `连接超时(${url})`;
+    // }
+  }
+  return result;
+};
+
+/**
+ * 根据学号获取本科生信息
+ * @param {String} xh 学号
+ * @returns 本科生信息
+ * {
+ *  ret, data, msg,
+ * }
+ */
+const bksByXh = async (xh) => {
+  const url = `${HOST}do/api/call/query_bks`;
+
+  let result = {
+    ret: -1,
+    data: null,
+    msg: '',
+  };
+  try {
+    const res = await fetchWithTimeout(url, {
+      method: 'POST',
+      headers: {
+        appid: ESOP_APPID,
+        accessToken: ESOP_TOKEN,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        xh,
+      }),
+    });
+    result = await handleEsopResult(res);
+  } catch (error) {
+    // if (error instanceof fetch.AbortError) {
+    warn('ERROR::', error);
+    result.msg = `连接超时(${url})`;
+    // }
+  }
+  return result;
+};
+
+/**
+ * 根据院系代码、年级获取在校研究生
+ * @param {String} yxdm 院系代码
+ * @param {Number} nj 年级
+ * @returns 研究生列表
+ */
+const list_yjs_by_yx_nj = async (yxdm, nj) => {
+  const url = `${HOST}do/api/call/query_yjs`;
+
+  let result = {
+    ret: -1,
+    data: null,
+    msg: '',
+  };
+  try {
+    const res = await fetchWithTimeout(url, {
+      method: 'POST',
+      headers: {
+        appid: ESOP_APPID,
+        accessToken: ESOP_TOKEN,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        yxdm,
+        nj,
+        sfzx: '1', // 是否在校
+      }),
+    });
+    result = await handleEsopResult(res, false);
+  } catch (error) {
+    // if (error instanceof fetch.AbortError) {
+    console.log('ERROR::', error);
+    result.msg = `连接超时(${url})`;
+    // }
+  }
+  return result;
+};
+
+/**
+ * 根据学号获取研究生信息
+ * @param {String} xh 学号
+ * @returns 研究生信息
+ * {
+ *  ret, data, msg,
+ * }
+ */
+const yjsByXh = async (xh) => {
+  const url = `${HOST}do/api/call/query_yjs`;
+
+  let result = {
+    ret: -1,
+    data: null,
+    msg: '',
+  };
+  try {
+    const res = await fetchWithTimeout(url, {
+      method: 'POST',
+      headers: {
+        appid: ESOP_APPID,
+        accessToken: ESOP_TOKEN,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        xh,
+      }),
+    });
+    result = await handleEsopResult(res);
+  } catch (error) {
+    // if (error instanceof fetch.AbortError) {
+    warn('ERROR::', error);
+    result.msg = `连接超时(${url})`;
+    // }
+  }
+  return result;
+};
+
 module.exports = {
   fetchWithTimeout,
   handleEsopResult,
@@ -272,4 +459,9 @@ module.exports = {
   rs_zzjg,
   list_rs_zzjzg_by_dw,
   idsUserById,
+  list_bks_by_yx_nj,
+  bksByXh,
+  list_yjs_by_yx_nj,
+  yjsByXh,
+  query_jzg,
 };

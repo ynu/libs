@@ -63,6 +63,8 @@ const create = async (user) => {
     case 40066:
       warn(`create失败：不合法的部门列表:${user.department}(${errcode})`);
       return errcode;
+    case 60104:
+      warn(`create失败:手机号码(${user.mobile})已存在`)
     default:
       warn('create失败::', `${errmsg}(${errcode})`);
       return errcode;

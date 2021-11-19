@@ -70,7 +70,7 @@ const list = async (id) => {
       return department;
     case 60123:
       warn(`无效的部门id, 部门[${id}]不存在通讯录中`);
-      return null;
+      return [];
     default:
       warn('list失败::', `${errmsg}(${errcode})`);
       return [];

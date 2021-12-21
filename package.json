@@ -1,7 +1,7 @@
 {
   "name": "ynu-libs",
-  "version": "1.14.1",
-  "description": "云南大学常用开发函数库 - ESOP API等",
+  "version": "1.15.2",
+  "description": "云南大学常用开发函数库 - ESOP API、企业微信等",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

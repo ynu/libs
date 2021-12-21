@@ -12,7 +12,7 @@ const qyHost = 'https://qyapi.weixin.qq.com/cgi-bin';
 
 
 /**
- * 获取token。
+ * 获取access_token。
  * @param {String}} secret 用于获取TOKEN的secret，默认为环境变量中的SECRET
  * @returns access_token
  */

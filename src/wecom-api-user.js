@@ -64,8 +64,11 @@ const create = async (user) => {
       warn(`用户create失败(40066)：不合法的部门列表:${user.department}(${errcode})`);
       return errcode;
     case 60104:
-      warn(`用户create失败(60104):用户[${user.name}](${user.userid})拟加入部门:${user.department}, 手机号码(${user.mobile})已存在`)
-      return errcode
+      warn(`用户create失败(60104):用户[${user.name}](${user.userid})拟加入部门:${user.department}, 手机号码(${user.mobile})已存在`);
+      return errcode;
+    case 60103:
+      warn(`用户create失败(60103):用户[${user.name}](${user.userid})拟加入部门:${user.department}, 手机号码(${user.mobile})不正确`);
+      return errcode;
     default:
       warn('用户create失败::', `${errmsg}(${errcode})`);
       return errcode;

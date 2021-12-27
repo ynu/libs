@@ -415,7 +415,7 @@ const list_yjs_by_yx_nj = async (yxdm, nj) => {
 };
 
 /**
- * 根据学号获取研究生信息
+ * 根据学号获取研究生信息
  * @param {String} xh 学号
  * @returns 研究生信息
  * {
@@ -452,6 +452,43 @@ const yjsByXh = async (xh) => {
   return result;
 };
 
+/**
+ * 根据用户ID，获取与此ID同组的其他帐号。
+ * @param {String} userid 用户ID
+ * @returns
+ * 获取成功返回此ID同组的所有ID的列表；若未绑定其他帐号则返回空数组。
+ * 若出现异常则返回null
+ */
+const ids_grouped_users = async(userid) => {
+  const url = `${HOST}do/api/call/tzsyyh_tysfrz`;
+
+  let result = {
+    ret: -1,
+    data: null,
+    msg: '',
+  };
+  try {
+    const res = await fetchWithTimeout(url, {
+      method: 'POST',
+      headers: {
+        appid: ESOP_APPID,
+        accessToken: ESOP_TOKEN,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userid,
+      }),
+    });
+    result = await handleEsopResult(res);
+  } catch (error) {
+    // if (error instanceof fetch.AbortError) {
+    warn('ERROR::', error);
+    result.msg = `连接超时(${url})`;
+    // }
+  }
+  return result;
+}
+
 module.exports = {
   fetchWithTimeout,
   handleEsopResult,
@@ -464,4 +501,5 @@ module.exports = {
   list_yjs_by_yx_nj,
   yjsByXh,
   query_jzg,
+  ids_grouped_users,
 };

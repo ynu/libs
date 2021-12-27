@@ -489,6 +489,59 @@ const ids_grouped_users = async(userid) => {
   return result;
 }
 
+/**
+ * 根据用户ID获取用户已绑定的手机号（若用户设置了身份绑定，则将获取其绑定的账号的手机号）
+ * @param {String} userid 用户ID
+ * @returns
+ * 用于的手机号码，若为绑定手机号，则返回空字符串。
+ */
+const ids_get_mobile_phone = async (userid) => {
+
+  let result = {
+    ret: -1,
+    data: null,
+    msg: '',
+  };
+
+  // 优先由给定的帐号获取手机号
+  const result1 = await this.idsUserById(userid);
+  if (!result1.data) {
+    warn(`esopApi.idsUserById(${userid})获取用户信息时发生错误`);
+    return result;
+  }
+  if (result1.data.TELEPHONENUMBER) {
+    return {
+      ret: 0,
+      data: data.TELEPHONENUMBER,
+    };
+  }
+  // 若给定的帐号没有绑定手机号，则检查用户是否进行了身份绑定
+  const result2 = await this.ids_grouped_users(userid);
+  if (!result2.data) {
+    warn(`esopApi.ids_grouped_users(${userid})获取用户绑定信息时发生错误`);
+    return result2;
+  }
+  for (let i = 0; i < result2.data.length; i++) {
+    const user = result2.data[i];
+    if (user.USERID === userid) continue;
+    const result3 = await this.idsUserById(user.USERID);
+    if (!result3.data) {
+      warn(`esopApi.idsUserById(${user.USERID})获取用户信息时发生错误`);
+      return result;
+    }
+    if (result3.data.TELEPHONENUMBER) {
+      return {
+        ret: 0,
+        data: data.TELEPHONENUMBER,
+      };
+    }
+  }
+  return {
+    ret: 0,
+    data: '',
+  };
+}
+
 module.exports = {
   fetchWithTimeout,
   handleEsopResult,
@@ -502,4 +555,5 @@ module.exports = {
   yjsByXh,
   query_jzg,
   ids_grouped_users,
+  ids_get_mobile_phone,
 };

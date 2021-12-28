@@ -195,12 +195,12 @@ const rs_zzjg = async () => {
 };
 
 /**
- * 根据所在单位代码由人事系统获取在职教职工列表
+ * 根据所在单位代码由人事系统获取教职工列表
  * @see http://docs.api.ynu.edu.cn/esop/api-jzg/query_jzg_jbxx.html
  * @param {String} szdwdm 所在单位代码
  * @returns 教职工列表
  */
-const list_rs_zzjzg_by_dw = async (szdwdm) => {
+const list_rs_jzg_by_dw = async (szdwdm) => {
   const url = `${HOST}do/api/call/query_jzg`;
 
   let result = {
@@ -218,7 +218,6 @@ const list_rs_zzjzg_by_dw = async (szdwdm) => {
       },
       body: JSON.stringify({
         szdwdm,
-        dqztdm: '22', // 在职状态
       }),
     });
     result = await handleEsopResult(res, false);
@@ -227,6 +226,23 @@ const list_rs_zzjzg_by_dw = async (szdwdm) => {
     warn('ERROR::', error);
     result.msg = `连接超时(${url})`;
     // }
+  }
+  return result;
+};
+
+/**
+ * 根据所在单位代码由人事系统获取在职教职工列表
+ * @see http://docs.api.ynu.edu.cn/esop/api-jzg/query_jzg_jbxx.html
+ * @param {String} szdwdm 所在单位代码
+ * @returns 教职工列表
+ */
+const list_rs_zzjzg_by_dw = async (szdwdm) => {
+  const result = await list_rs_jzg_by_dw(szdwdm);
+  if (result.data) {
+    return {
+      ...result,
+      data: result.data.filter(jzg => jzg.DQZTDM === '22'),
+    };
   }
   return result;
 };
@@ -479,7 +495,7 @@ const ids_grouped_users = async(userid) => {
         userid,
       }),
     });
-    result = await handleEsopResult(res);
+    result = await handleEsopResult(res, false);
   } catch (error) {
     // if (error instanceof fetch.AbortError) {
     warn('ERROR::', error);
@@ -504,7 +520,7 @@ const ids_get_mobile_phone = async (userid) => {
   };
 
   // 优先由给定的帐号获取手机号
-  const result1 = await this.idsUserById(userid);
+  const result1 = await idsUserById(userid);
   if (!result1.data) {
     warn(`esopApi.idsUserById(${userid})获取用户信息时发生错误`);
     return result;
@@ -512,11 +528,11 @@ const ids_get_mobile_phone = async (userid) => {
   if (result1.data.TELEPHONENUMBER) {
     return {
       ret: 0,
-      data: data.TELEPHONENUMBER,
+      data: result1.data.TELEPHONENUMBER,
     };
   }
   // 若给定的帐号没有绑定手机号，则检查用户是否进行了身份绑定
-  const result2 = await this.ids_grouped_users(userid);
+  const result2 = await ids_grouped_users(userid);
   if (!result2.data) {
     warn(`esopApi.ids_grouped_users(${userid})获取用户绑定信息时发生错误`);
     return result2;
@@ -524,7 +540,7 @@ const ids_get_mobile_phone = async (userid) => {
   for (let i = 0; i < result2.data.length; i++) {
     const user = result2.data[i];
     if (user.USERID === userid) continue;
-    const result3 = await this.idsUserById(user.USERID);
+    const result3 = await idsUserById(user.USERID);
     if (!result3.data) {
       warn(`esopApi.idsUserById(${user.USERID})获取用户信息时发生错误`);
       return result;
@@ -532,7 +548,7 @@ const ids_get_mobile_phone = async (userid) => {
     if (result3.data.TELEPHONENUMBER) {
       return {
         ret: 0,
-        data: data.TELEPHONENUMBER,
+        data: result3.data.TELEPHONENUMBER,
       };
     }
   }
@@ -556,4 +572,5 @@ module.exports = {
   query_jzg,
   ids_grouped_users,
   ids_get_mobile_phone,
+  list_rs_jzg_by_dw,
 };

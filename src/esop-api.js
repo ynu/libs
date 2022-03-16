@@ -1,6 +1,9 @@
 /* eslint-disable camelcase */
 /**
  * YNU ESOP API
+ * ESOP API通用参数：
+ *  - pageSize. 分页大小，最大1000
+ *  - pgeNum. 页码，从1开始
  */
 const fetch = require('node-fetch');
 const AbortController = require('abort-controller');
@@ -506,6 +509,112 @@ const ids_grouped_users = async(userid) => {
 }
 
 /**
+ * 获取在籍本科生人数
+ * @returns 执行成功时，返回在籍本科生人数；执行失败时返回0；
+ * @see http://docs.api.ynu.edu.cn/esop/api-bkjw/counter_bks.html#统计本科生数量
+ */
+const bks_count = async () => {
+  const url = `${HOST}do/api/call/count_bks`;
+
+  try {
+    const res = await fetchWithTimeout(url, {
+      method: 'POST',
+      headers: {
+        appid: ESOP_APPID,
+        accessToken: ESOP_TOKEN,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        sfzj: '1',
+      }),
+    });
+    const result = await handleEsopResult(res);
+    if (!result.ret) return result.data.RESULT;
+    else {
+      warn(`获取在籍本科生人数失败:${result.msg}`);
+      return 0;
+    }
+  } catch (error) {
+    // if (error instanceof fetch.AbortError) {
+    warn('ERROR::', error);
+    result.msg = `连接超时(${url})`;
+    // }
+  }
+}
+
+/**
+ * 获取在校研究生人数
+ * @returns 执行成功时，返回在校研究生人数；执行失败时返回0；
+ */
+ const yjs_count = async () => {
+  const url = `${HOST}do/api/call/count_yjs`;
+
+  try {
+    const res = await fetchWithTimeout(url, {
+      method: 'POST',
+      headers: {
+        appid: ESOP_APPID,
+        accessToken: ESOP_TOKEN,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        sfzx: "1",
+      }),
+    });
+    const result = await handleEsopResult(res);
+    if (!result.ret) return result.data.RESULT;
+    else {
+      warn(`获取在校研究生人数失败:${result.msg}`);
+      return 0;
+    }
+  } catch (error) {
+    // if (error instanceof fetch.AbortError) {
+    warn('ERROR::', error);
+    result.msg = `连接超时(${url})`;
+    // }
+  }
+}
+
+/**
+ * 获取教职工人数
+ * @returns 执行成功时，返回教职工人数；执行失败时返回0；
+ */
+ const jzg_count = async (options = {
+   yrfsdm: '', // 用人方式代码
+   dqztdm: '', // 当前状态代码
+ }) => {
+  const url = `${HOST}do/api/call/count_jzg`;
+
+  // 构造传入的参数
+  const body = {};
+  if (options.yrfsdm) body.yrfsdm = options.yrfsdm;
+  if (options.dqztdm) body.dqztdm = options.dqztdm;
+
+  try {
+    const res = await fetchWithTimeout(url, {
+      method: 'POST',
+      headers: {
+        appid: ESOP_APPID,
+        accessToken: ESOP_TOKEN,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+    const result = await handleEsopResult(res);
+    if (!result.ret) return result.data.RESULT;
+    else {
+      warn(`jzg_count失败:${result.msg}`);
+      return 0;
+    }
+  } catch (error) {
+    // if (error instanceof fetch.AbortError) {
+    warn('ERROR::', error);
+    result.msg = `连接超时(${url})`;
+    // }
+  }
+}
+
+/**
  * 根据用户ID获取用户已绑定的手机号（若用户设置了身份绑定，则将获取其绑定的账号的手机号）
  * @param {String} userid 用户ID
  * @returns
@@ -558,6 +667,42 @@ const ids_get_mobile_phone = async (userid) => {
   };
 }
 
+/**
+ * 获取一卡通POS机信息（含最后记账日期）
+ * @returns 返回POS机列表
+ */
+ const posdevice_ecard = async (options = {
+   pageSize: 20,
+   pageNum: 1,
+ }) => {
+  const url = `${HOST}do/api/call/posdevice_ecard`;
+
+  options.pageSize = options.pageSize || 20;
+  options.pageNum = options.pageNum || 1;
+
+  try {
+    const res = await fetchWithTimeout(url, {
+      method: 'POST',
+      headers: {
+        appid: ESOP_APPID,
+        accessToken: ESOP_TOKEN,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        ...options,
+      }),
+    });
+    const result = await handleEsopResult(res, false);
+    return result;
+  } catch (error) {
+    // if (error instanceof fetch.AbortError) {
+    warn('获取一卡通POS机信息（含最后记账日期）ERROR::', error);
+    result.msg = `连接超时(${url})`;
+    return result;
+    // }
+  }
+}
+
 module.exports = {
   fetchWithTimeout,
   handleEsopResult,
@@ -573,4 +718,11 @@ module.exports = {
   ids_grouped_users,
   ids_get_mobile_phone,
   list_rs_jzg_by_dw,
+  bks_count,
+  yjs_count,
+  jzg_count,
+  posdevice_ecard,
+  HOST,
+  ESOP_APPID,
+  ESOP_TOKEN,
 };

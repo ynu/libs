@@ -59,6 +59,7 @@ const code2session = async (code) => {
 
 
 module.exports = {
+  qyHost,
   getToken,
   code2session,
 };

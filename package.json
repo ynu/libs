@@ -1,6 +1,6 @@
 {
   "name": "ynu-libs",
-  "version": "3.0.0",
+  "version": "3.1.1",
   "description": "云南大学常用开发函数库 - ESOP API、企业微信等",
   "main": "index.js",
   "scripts": {
@@ -21,6 +21,7 @@
     "babel-polyfill": "^6.26.0",
     "dayjs": "^1.11.0",
     "debug": "^4.3.2",
+    "hik-openapi": "^1.0.5",
     "node-fetch": "^2.6.1"
   }
 }

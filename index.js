@@ -7,6 +7,7 @@ const wecomAgentApi = require('./src/wecom-agent');
 const fcApi = require('./src/fc-api');
 const ecardApi = require('./src/ecard-api');
 const wecomHealth = require('./src/wecom-health');
+const hikApi = require('./src/hik-api');
 
 module.exports = {
   esopApi,
@@ -18,4 +19,5 @@ module.exports = {
   fcApi,
   ecardApi,
   wecomHealth,
+  hikApi,
 };

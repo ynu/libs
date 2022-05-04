@@ -65,13 +65,64 @@ class HikApi {
    */
   acsDevices(options = {}) {
     const apiUrl = '/artemis/api/resource/v2/acsDevice/search';
-    const pageNo = options.pageNo || 1;
-    const pageSize = options.pageSize || 1000;
+    options.pageNo = options.pageNo || 1;
+    options.pageSize = options.pageSize || 1000;
     
-    return this.hikApi.post(apiUrl, {
-      pageNo,
-      pageSize,
-    });
+    return this.hikApi.post(apiUrl, options);
+  }
+
+  /**
+   * 查询车辆列表
+   * @param {Object} options 参数
+   *  - pageNo, 从1开始，默认为1
+   *  - pageSize, 默认为1000
+   * @see https://open.hikvision.com/docs/docId?productId=5c67f1e2f05948198c909700&version=%2Ff95e951cefc54578b523d1738f65f0a1&curNodeId=b04852bb01c74016ab869ce5ebb184ba#d3f8970f
+   */
+  vehicles(options = {}) {
+    const apiUrl = '/artemis/api/resource/v2/vehicle/advance/vehicleList';
+    options.pageNo = options.pageNo || 1;
+    options.pageSize = options.pageSize || 1000;
+    
+    return this.hikApi.post(apiUrl, options);
+  }
+
+  /**
+   * 查询访客预约记录
+   * @param {Object} options 参数
+   *  - pageNo, 从1开始，默认为1
+   *  - pageSize, 默认为1000
+   * @see https://open.hikvision.com/docs/docId?productId=5c67f1e2f05948198c909700&version=%2Ff95e951cefc54578b523d1738f65f0a1&curNodeId=4fc58bdab2a84f9e9855bf742ce9eda6#f306518b
+   */
+   visitor_appointment_records(options = {}) {
+    const apiUrl = '/artemis/api/visitor/v2/appointment/records';
+    options.pageNo = options.pageNo || 1;
+    options.pageSize = options.pageSize || 1000;
+    
+    return this.hikApi.post(apiUrl,options);
+  }
+
+  /**
+   * 获取根组织
+   * @returns 
+   */
+  org_root() {
+    const apiUrl = '/artemis/api/resource/v1/org/rootOrg';
+    return this.hikApi.post(apiUrl);
+  }
+
+  /**
+   * 查询组织列表
+   * @param {Object} options 参数
+   *  - pageNo, 从1开始，默认为1
+   *  - pageSize, 默认为1000
+   * @see https://open.hikvision.com/docs/docId?productId=5c67f1e2f05948198c909700&version=%2Ff95e951cefc54578b523d1738f65f0a1&curNodeId=cfee5b180a4045348d70e463f6da0ef4#eea0304a
+   */
+   orgs(options = {}) {
+    const apiUrl = '/artemis/api/resource/v2/org/advance/orgList';
+    options.pageNo = options.pageNo || 1;
+    options.pageSize = options.pageSize || 1000;
+    
+    return this.hikApi.post(apiUrl, options);
   }
 
 }

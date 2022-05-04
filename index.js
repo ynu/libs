@@ -8,6 +8,10 @@ const fcApi = require('./src/fc-api');
 const ecardApi = require('./src/ecard-api');
 const wecomHealth = require('./src/wecom-health');
 const hikApi = require('./src/hik-api');
+const wecomMessage = require('./src/wecom-message');
+const wecomOa = require('./src/wecom-oa');
+const dcDoor = require('./src/dc-door');
+const risAuth = require('./src/ris/authenticate');
 
 module.exports = {
   esopApi,
@@ -20,4 +24,8 @@ module.exports = {
   ecardApi,
   wecomHealth,
   hikApi,
+  wecomMessage,
+  wecomOa,
+  dcDoor,
+  risAuth,
 };

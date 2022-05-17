@@ -11,7 +11,10 @@ const hikApi = require('./src/hik-api');
 const wecomMessage = require('./src/wecom-message');
 const wecomOa = require('./src/wecom-oa');
 const dcDoor = require('./src/dc-door');
-const risAuth = require('./src/ris/authenticate');
+const risAuth = require('./src/ris/auth');
+const risRole = require('./src/ris/role');
+const risDev = require('./src/ris/dev');
+const risUser= require('./src/ris/user');
 
 module.exports = {
   esopApi,
@@ -28,4 +31,7 @@ module.exports = {
   wecomOa,
   dcDoor,
   risAuth,
+  risRole,
+  risDev,
+  risUser,
 };

@@ -60,11 +60,13 @@ const getApplyData = sp => {
         break;
       case 'Money':
         result[id].value = parseFloat(value.new_money);
-      case 'Date':
-      case 'Contact':
       case 'Tips':
         result[id].value = '';
         break;
+      case 'Date':
+        result[id].value = value.date;
+        break;
+      case 'Contact':
       case 'File':
       case 'Table':
       case 'Attendance':

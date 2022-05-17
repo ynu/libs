@@ -7,6 +7,8 @@ const debug = require('debug')('ynu-libs:wecom-api-user:debug');
 const warn = require('debug')('ynu-libs:wecom-api-user:warn');
 const { getToken } = require('./wecom-api');
 
+const { SECRET } = process.env;
+
 const qyHost = 'https://qyapi.weixin.qq.com/cgi-bin';
 
 
@@ -81,8 +83,9 @@ const create = async (user) => {
  * @param {String} userid 成员id
  * @returns 成员
  */
-const get = async (userid) => {
-  const token = await getToken();
+const get = async (userid, options = {}) => {
+  const secret = options.secret || SECRET;
+  const token = await getToken(secret);
   const res = await fetch(`${qyHost}/user/get?access_token=${token}&userid=${userid}`, {
     method: 'GET',
   });

@@ -232,6 +232,8 @@ const eventTypeToText = (event) => {
       return '取消关注'
     case 'sys_approval_change':
       return '审批申请状态变化回调通知'
+    case 'change_contact':
+      return '通讯录回调通知';
     default:
       return `未定义(${event})`
   }

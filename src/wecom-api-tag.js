@@ -3,6 +3,7 @@
  * @see https://open.work.weixin.qq.com/api/doc/90000/90135/90209
  */
 const fetch = require('node-fetch');
+const info = require('debug')('ynu-libs:wecom-api-tag:info');
 const debug = require('debug')('ynu-libs:wecom-api-tag:debug');
 const warn = require('debug')('ynu-libs:wecom-api-tag:warn');
 const { getToken } = require('./wecom-api');
@@ -79,7 +80,54 @@ const create = async (tagname, tagid) => {
   }
 };
 
+const get = async (tagid, options) => {
+  info(`获取标签(${tagid})成员`);
+  const secret = options.secret || SECRET;
+  const token = await getToken(secret);
+  const res = await fetch(`${qyHost}/tag/get?access_token=${token}&tagid=${tagid}`);
+  const result = await res.json();
+  const { errcode, errmsg } = result;
+  switch (errcode) {
+    case 0:
+      return result;
+    default:
+      warn('get失败::', `${errmsg}(${errcode})`);
+      return {
+        tagname: '',
+        userlist: [],
+        partylist: [],
+      };
+  }
+}
+
+const delUsersFromTag = async (tagid, options) => {
+  info(`删除标签${tagid}成员`);
+  const secret = options.secret || SECRET;
+  const { userlist, partylist } = options;
+  const token = await getToken(secret);
+  const body = { tagid };
+  if (userlist) body.userlist = userlist;
+  if (partylist) body.partylist = partylist;
+  const res = await fetch(`${qyHost}/tag/deltagusers?access_token=${token}`, {
+    method: 'POST',
+    body: JSON.stringify(body),
+  });
+  const { errcode, errmsg } = await res.json();
+  switch (errcode) {
+    case 0:
+      return 0;
+    case 40070:
+      warn(`指定的标签范围结点全部无效(40070)`);
+      return errcode;
+    default:
+      warn('删除标签用户失败::', `${errmsg}(${errcode})`);
+      return errcode;
+  }
+}
+
 module.exports = {
   addTagUsers,
   create,
+  get,
+  delUsersFromTag,
 };

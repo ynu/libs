@@ -1,6 +1,6 @@
 {
   "name": "ynu-libs",
-  "version": "4.6.0",
+  "version": "4.7.0",
   "description": "云南大学常用开发函数库 - ESOP API、企业微信等",
   "main": "index.js",
   "scripts": {

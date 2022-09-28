@@ -288,6 +288,39 @@ const query_jzg = async (params, options) => {
 
 /**
   * 查询ids帐号基本信息
+  * @param {Object} params 用户基本信息 {userid, cn, telephonenumber}
+  * @returns 帐号信息
+  */
+const idsUserByCondition = async (params, options = {}) => {
+  const appid = options.appid || ESOP_APPID;
+  const accessToken = options.accessToken || ESOP_TOKEN;
+
+  const url = `${HOST}do/api/call/zhjbxx_tysfrz`;
+  let result = {
+    ret: -1,
+    data: null,
+    msg: '',
+  };
+  try {
+    const res = await fetchWithTimeout(url, {
+      method: 'POST',
+      headers: {
+        appid,
+        accessToken,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(params),
+    });
+    result = await handleEsopResult(res, false);
+  } catch (error) {
+    warn('ERROR::', error);
+    result.msg = `连接超时(${url})`;
+  }
+  return result;
+};
+
+/**
+  * 查询ids帐号基本信息
   * @param {String} userid 帐号id
   * @returns 帐号信息
   */
@@ -780,6 +813,7 @@ module.exports = {
   jzgById,
   rs_zzjg,
   list_rs_zzjzg_by_dw,
+  idsUserByCondition,
   idsUserById,
   list_bks_by_yx_nj,
   bksByXh,

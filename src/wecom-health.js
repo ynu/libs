@@ -21,7 +21,8 @@
    //规范输入参数
    options.offset = options.offset || 0;
    options.limit = options.limit || 100;
-  const token = await getToken(process.env.HEALTH_SECRET);
+   const secret = options.secret || process.env.HEALTH_SECRET;
+  const token = await getToken(secret);
   debug(`report_jobids::token::${token}`);
   const res = await fetch(`${qyHost}/health/get_report_jobids?access_token=${token}`, {
     method: 'POST',

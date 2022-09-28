@@ -22,9 +22,14 @@ const qyHost = 'https://qyapi.weixin.qq.com/cgi-bin';
  * @param {String} secret 对应应用的SECRET
  * @returns 审批单详情
  */
-const getApprovalDetail = async (sp_no, secret = APPROVAL_SECRET || SECRET) => {
+const getApprovalDetail = async (sp_no, options = {}) => {
   info(`获取审批详情[${sp_no}]`);
-  const token = await getToken(secret);
+  if (typeof(options) == 'string') options = {
+    secret: options,
+  }
+  const secret = options.secret || APPROVAL_SECRET || SECRET;
+  const corpId = options.corpId || CORP_ID;
+  const token = await getToken(options);
   const res = await fetch(`${qyHost}/oa/getapprovaldetail?access_token=${token}`, {
     method: 'POST',
     body: JSON.stringify({

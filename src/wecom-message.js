@@ -8,6 +8,7 @@
  const warn = require('debug')('ynu-libs:wecom-message:warn');
  const error = require('debug')('ynu-libs:wecom-message:error');
  const info = require('debug')('ynu-libs:wecom-message:info');
+ const debug = require('debug')('ynu-libs:wecom-message:debug');
  
  const {
    CORP_ID, // 企业微信ID
@@ -23,12 +24,12 @@
  */
 const parseMessage = async (xml, encoding_aes_key = ENCODING_AES_KEY) => {
   const parser = new xml2js.Parser();
-
   // 将消息体解析为JSON
   const result = await parser.parseStringPromise(xml);
 
   // 对加密的消息进行解密
   const { message } = decrypt(encoding_aes_key, result.xml.Encrypt[0]);
+  debug(`待解析的消息:${JSON.stringify(message)}`);
 
   // 将消息块解析为JSON
   const messageJson = await parser.parseStringPromise(message);
@@ -52,7 +53,14 @@ const parseMessage = async (xml, encoding_aes_key = ENCODING_AES_KEY) => {
         ...json,
         ...refineEventFromXmlJson(json),
       };
+    case 'text':
+      json = {
+        ...json,
+        ...refineTextFromXmlJson(json),
+      }
       break;
+    default:
+      warn(`当前MsgType(${json.MsgType}的消息尚不能被解析)`);
   }
 
   return json;
@@ -91,6 +99,21 @@ const refineEventFromXmlJson = (json) => {
       break;
   }
   return result;
+}
+
+/**
+ * 针对MsgType==text的JSON数据（来自XML）进行解析
+ * @param {Object} json 待解析的JSON对象
+ * @returns json对象
+ * @seealso https://developer.work.weixin.qq.com/document/path/90239
+ */
+const refineTextFromXmlJson = (json) => {
+  return {
+    ...json,
+    AgentID: json.AgentID[0],
+    Content: json.Content[0],
+    MsgId: json.MsgId[0],
+  };
 }
 
 
@@ -249,9 +272,13 @@ const eventTypeToText = (event) => {
  */
 const send = async (message, options = {}) => {
   const secret = options.secret || SECRET;
+  const corpId = options.corpId || CORP_ID;
   const enable_duplicate_check = options.enable_duplicate_check || 0
   const enable_id_trans = options.enable_id_trans || 0;
-  const token = await getToken(secret);
+  const token = await getToken({
+    secret,
+    corpId,
+  });
   const res = await fetch(`${qyHost}/message/send?access_token=${token}`, {
     method: 'POST',
     body: JSON.stringify({
@@ -271,7 +298,7 @@ const send = async (message, options = {}) => {
 
 /**
  * 发送文本消息
- * @param {String} to 接收者
+ * @param {Object} to 接收者
  * @param {Number|String} agentid 接收应用ID
  * @param {String} content 消息内容
  * @param {Object} options 参数
@@ -310,6 +337,14 @@ const sendTextCard = async (to, agentid, textcard, options = {}) => {
   return send(message, options);
 }
 
+/**
+ * 发送Markdown消息
+ * @param {Object} to 要接收消息的用户、部门及标签
+ * @param {Number} agentid 发送消息的应用
+ * @param {String} content 发送的内容
+ * @param {Object} options 相关配置
+ * @returns 发送结果
+ */
 const sendMarkdown = async (to, agentid, content, options = {}) => {
   const message = {
     ...to,

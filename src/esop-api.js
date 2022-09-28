@@ -75,7 +75,6 @@ const handleEsopResult = async (res, singleData = true) => {
     case 401: {
       const err = await res.json();
       warn('Handle ESOP ERROR::', err);
-      warn(ESOP_APPID, ESOP_TOKEN);
       esopResult.msg = '此功能暂时不可用(HTTP Status:401)';
       break;
     }
@@ -169,7 +168,10 @@ const jzgById = async (zgh) => {
  *    msg,
  * }
  */
-const rs_zzjg = async () => {
+const rs_zzjg = async (options = {}) => {
+  const appid = options.appid || ESOP_APPID;
+  const accessToken = options.accessToken || ESOP_TOKEN;
+
   const url = `${HOST}do/api/call/xzjg_jzg`;
 
   let result = {
@@ -181,8 +183,8 @@ const rs_zzjg = async () => {
     const res = await fetchWithTimeout(url, {
       method: 'POST',
       headers: {
-        appid: ESOP_APPID,
-        accessToken: ESOP_TOKEN,
+        appid,
+        accessToken,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({}),
@@ -254,7 +256,9 @@ const list_rs_zzjzg_by_dw = async (szdwdm) => {
  * 查询教职工信息
  * @param {Object} parmas 查询参数 @see http://docs.api.ynu.edu.cn/esop/api-jzg/query_jzg_jbxx.html
  */
-const query_jzg = async (parmas) => {
+const query_jzg = async (params, options) => {
+  const appid = options.appid || ESOP_APPID;
+  const accessToken = options.accessToken || ESOP_TOKEN;
   const url = `${HOST}do/api/call/query_jzg`;
 
   let result = {
@@ -266,11 +270,11 @@ const query_jzg = async (parmas) => {
     const res = await fetchWithTimeout(url, {
       method: 'POST',
       headers: {
-        appid: ESOP_APPID,
-        accessToken: ESOP_TOKEN,
+        appid,
+        accessToken,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(parmas),
+      body: JSON.stringify(params),
     });
     result = await handleEsopResult(res, false);
   } catch (error) {
@@ -287,9 +291,11 @@ const query_jzg = async (parmas) => {
   * @param {String} userid 帐号id
   * @returns 帐号信息
   */
-const idsUserById = async (userid) => {
-  const url = `${HOST}do/api/call/zhjbxx_tysfrz`;
+const idsUserById = async (userid, options = {}) => {
+  const appid = options.appid || ESOP_APPID;
+  const accessToken = options.accessToken || ESOP_TOKEN;
 
+  const url = `${HOST}do/api/call/zhjbxx_tysfrz`;
   let result = {
     ret: -1,
     data: null,
@@ -299,8 +305,8 @@ const idsUserById = async (userid) => {
     const res = await fetchWithTimeout(url, {
       method: 'POST',
       headers: {
-        appid: ESOP_APPID,
-        accessToken: ESOP_TOKEN,
+        appid,
+        accessToken,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -356,6 +362,68 @@ const list_bks_by_yx_nj = async (yxdm, xznj, sfzj = '1') => {
   }
   return result;
 };
+
+const query_bks = async (params = {}, options = {}) => {
+  const appid = options.appid || ESOP_APPID;
+  const accessToken = options.accessToken || ESOP_TOKEN;
+
+  const url = `${HOST}do/api/call/query_bks`;
+
+  let result = {
+    ret: -1,
+    data: null,
+    msg: '',
+  };
+  try {
+    const res = await fetchWithTimeout(url, {
+      method: 'POST',
+      headers: {
+        appid,
+        accessToken,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(params),
+    });
+    result = await handleEsopResult(res, false);
+  } catch (error) {
+    // if (error instanceof fetch.AbortError) {
+    warn('ERROR::', error);
+    result.msg = `连接超时(${url})`;
+    // }
+  }
+  return result;
+}
+
+const query_yjs = async (params = {}, options = {}) => {
+  const appid = options.appid || ESOP_APPID;
+  const accessToken = options.accessToken || ESOP_TOKEN;
+
+  const url = `${HOST}do/api/call/query_yjs`;
+
+  let result = {
+    ret: -1,
+    data: null,
+    msg: '',
+  };
+  try {
+    const res = await fetchWithTimeout(url, {
+      method: 'POST',
+      headers: {
+        appid,
+        accessToken,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(params),
+    });
+    result = await handleEsopResult(res, false);
+  } catch (error) {
+    // if (error instanceof fetch.AbortError) {
+    warn('ERROR::', error);
+    result.msg = `连接超时(${url})`;
+    // }
+  }
+  return result;
+}
 
 /**
  * 根据学号获取本科生信息
@@ -478,7 +546,10 @@ const yjsByXh = async (xh) => {
  * 获取成功返回此ID同组的所有ID的列表；若未绑定其他帐号则返回空数组。
  * 若出现异常则返回null
  */
-const ids_grouped_users = async(userid) => {
+const ids_grouped_users = async(userid, options = {}) => {
+  const appid = options.appid || ESOP_APPID;
+  const accessToken = options.accessToken || ESOP_TOKEN;
+
   const url = `${HOST}do/api/call/tzsyyh_tysfrz`;
 
   let result = {
@@ -490,8 +561,8 @@ const ids_grouped_users = async(userid) => {
     const res = await fetchWithTimeout(url, {
       method: 'POST',
       headers: {
-        appid: ESOP_APPID,
-        accessToken: ESOP_TOKEN,
+        appid,
+        accessToken,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -620,7 +691,7 @@ const bks_count = async () => {
  * @returns
  * 用于的手机号码，若为绑定手机号，则返回空字符串。
  */
-const ids_get_mobile_phone = async (userid) => {
+const ids_get_mobile_phone = async (userid, options) => {
 
   let result = {
     ret: -1,
@@ -628,8 +699,8 @@ const ids_get_mobile_phone = async (userid) => {
     msg: '',
   };
 
-  // 优先由给定的帐号获取手机号
-  const result1 = await idsUserById(userid);
+  // // 优先由给定的帐号获取手机号
+  const result1 = await idsUserById(userid, options);
   if (!result1.data) {
     warn(`esopApi.idsUserById(${userid})获取用户信息时发生错误`);
     return result;
@@ -641,7 +712,7 @@ const ids_get_mobile_phone = async (userid) => {
     };
   }
   // 若给定的帐号没有绑定手机号，则检查用户是否进行了身份绑定
-  const result2 = await ids_grouped_users(userid);
+  const result2 = await ids_grouped_users(userid, options);
   if (!result2.data) {
     warn(`esopApi.ids_grouped_users(${userid})获取用户绑定信息时发生错误`);
     return result2;
@@ -649,15 +720,15 @@ const ids_get_mobile_phone = async (userid) => {
   for (let i = 0; i < result2.data.length; i++) {
     const user = result2.data[i];
     if (user.USERID === userid) continue;
-    const result3 = await idsUserById(user.USERID);
-    if (!result3.data) {
-      warn(`esopApi.idsUserById(${user.USERID})获取用户信息时发生错误`);
-      return result;
-    }
-    if (result3.data.TELEPHONENUMBER) {
+    // const result3 = await idsUserById(user.USERID);
+    // if (!result3.data) {
+    //   warn(`esopApi.idsUserById(${user.USERID})获取用户信息时发生错误`);
+    //   return result;
+    // }
+    if (user.TELEPHONENUMBER) {
       return {
         ret: 0,
-        data: result3.data.TELEPHONENUMBER,
+        data: user.TELEPHONENUMBER,
       };
     }
   }
@@ -722,6 +793,8 @@ module.exports = {
   yjs_count,
   jzg_count,
   posdevice_ecard,
+  query_bks,
+  query_yjs,
   HOST,
   ESOP_APPID,
   ESOP_TOKEN,

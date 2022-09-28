@@ -20,9 +20,12 @@ const qyHost = 'https://qyapi.weixin.qq.com/cgi-bin';
  * @param {String}} secret 用于获取TOKEN的secret，默认为环境变量中的SECRET
  * @returns access_token
  */
-const getToken = async (secret = SECRET) => {
-  if (!CORP_ID) {
-    error('环境变量CORP_ID(企业ID)未设置.');
+const getToken = async (options = {}) => {
+  const secret = options.secret || SECRET || options // 兼容4.10.1之前的版本
+  const corpId = options.corpId || CORP_ID;
+
+  if (!corpId) {
+    error('必须的参数corpId或环境变量CORP_ID(企业ID)未设置.');
     return null;
   }
   if (!secret) {
@@ -30,7 +33,7 @@ const getToken = async (secret = SECRET) => {
     return null;
   }
   info(`正在获取token(secret:${secret})`);
-  const res = await fetch(`${qyHost}/gettoken?corpid=${CORP_ID}&corpsecret=${secret}`);
+  const res = await fetch(`${qyHost}/gettoken?corpid=${corpId}&corpsecret=${secret}`);
   const result = await res.json();
   if (!result.errcode) {
     info(`获取token成功::${result.access_token}`);
@@ -73,37 +76,36 @@ const code2session = async (code) => {
  */
 const verifyUrl = (
   echostr,
-  options = {
-    success: (message) => {
-      return {
-        isBase64Encoded: false,
-        statusCode: 200,
-        headers: {
-          'Content-Type': 'text/text',
-        },
-        body: message,
-      };
-    },
-    fail: () => {
-      return {
-        isBase64Encoded: false,
-        statusCode: 401,
-        headers: {
-          'Content-Type': 'text/text',
-        },
-      };
-   },
-   encodring_aes_key : ENCODING_AES_KEY,
-  },
+  options = {},
 ) => {
   const encoding_aes_key = options.encoding_aes_key || ENCODING_AES_KEY;
+  const corpId = options.corpId || CORP_ID;
+  const success = options.success || ((message) => {
+    return {
+      isBase64Encoded: false,
+      statusCode: 200,
+      headers: {
+        'Content-Type': 'text/text',
+      },
+      body: message,
+    };
+  });
+  const fail = options.fail || (() => {
+    return {
+      isBase64Encoded: false,
+      statusCode: 401,
+      headers: {
+        'Content-Type': 'text/text',
+      },
+    };
+ });
   const { message, id } = decrypt(encoding_aes_key, echostr);
-  if(id === CORP_ID) {
-    info('URL验证成功');
-    return options.success(message);
+  if(id === corpId) {
+    info(`URL验证成功, message=${message}`);
+    return success(message);
   } else {
-    info(`URL验证失败,当前配置corpId(${CORP_ID})与URL中的corpId(${id}不一致)`);
-    return options.fail();
+    info(`URL验证失败,当前配置corpId(${corpId})与URL中的corpId(${id}不一致)`);
+    return fail();
   }
 };
 

@@ -16,8 +16,8 @@ const qyHost = 'https://qyapi.weixin.qq.com/cgi-bin';
  * @param {Object} dept 部门，详见：https://work.weixin.qq.com/api/doc/90000/90135/90205
  * @returns dept
  */
-const create = async (dept) => {
-  const token = await getToken();
+const create = async (dept, options) => {
+  const token = await getToken(options);
   const res = await fetch(`${qyHost}/department/create?access_token=${token}`, {
     method: 'POST',
     body: JSON.stringify(dept),
@@ -41,14 +41,24 @@ const create = async (dept) => {
  * @param {Object} dept 部门，详见：https://work.weixin.qq.com/api/doc/90000/90135/90206
  * @returns dept
  */
-const update = async (dept) => {
-  const token = await getToken();
+const update = async (dept, options) => {
+  const token = await getToken(options);
   const res = await fetch(`${qyHost}/department/update?access_token=${token}`, {
     method: 'POST',
     body: JSON.stringify(dept),
   });
   const { errcode, errmsg } = await res.json();
-  if (errcode) warn('update失败::', `${errmsg}(${errcode})`);
+  switch (errcode) {
+    case 0:
+      break;
+    case 60009:
+      warn(`update失败::部门名称[${dept.name}]包含不可用字符`, `${errmsg}(${errcode})`);
+      break;
+    case 60001:
+      warn(`update失败::部门名称[${dept.name}]长度超过限制`, `${errmsg}(${errcode})`);
+    default:
+      warn('update失败::', `${errmsg}(${errcode})`);
+  }
   return errcode;
 };
 
@@ -58,8 +68,8 @@ const update = async (dept) => {
  * @param {String} id 父部门id
  * @returns dept
  */
-const list = async (id) => {
-  const token = await getToken();
+const list = async (id, options) => {
+  const token = await getToken(options);
   const res = await fetch(`${qyHost}/department/list?access_token=${token}&id=${id}`, {
     method: 'GET',
   });
@@ -78,13 +88,13 @@ const list = async (id) => {
 };
 
 /**
- * 删除部门
+ * 删除部门（注：不能删除根部门；不能删除含有子部门、成员的部门）
  * https://work.weixin.qq.com/api/doc/90000/90135/90207
  * @param {String} id 部门id
  * @returns dept
  */
-const del = async (id) => {
-  const token = await getToken();
+const del = async (id, options) => {
+  const token = await getToken(options);
   const res = await fetch(`${qyHost}/department/delete?access_token=${token}&id=${id}`, {
     method: 'GET',
   });

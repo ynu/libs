@@ -15,6 +15,8 @@ const risAuth = require('./src/ris/auth');
 const risRole = require('./src/ris/role');
 const risDev = require('./src/ris/dev');
 const risUser= require('./src/ris/user');
+const zmDoor = require('./src/zhangmen/doors');
+const zmDepartment = require('./src/zhangmen/departments');
 
 module.exports = {
   esopApi,
@@ -34,4 +36,6 @@ module.exports = {
   risRole,
   risDev,
   risUser,
+  zmDoor,
+  zmDepartment,
 };

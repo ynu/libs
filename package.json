@@ -1,6 +1,6 @@
 {
   "name": "ynu-libs",
-  "version": "4.16.0",
+  "version": "4.20.0",
   "description": "云南大学常用开发函数库 - ESOP API、企业微信等",
   "main": "index.js",
   "scripts": {
@@ -24,8 +24,21 @@
     "debug": "^4.3.2",
     "generate-password": "^1.7.0",
     "hik-openapi": "^1.0.5",
+    "memory-cache": "^0.2.0",
     "node-fetch": "^2.6.1",
     "uuid": "^8.3.2",
+    "wecom-agent": "^1.0.0",
+    "wecom-common": "^1.1.0",
+    "wecom-department": "^1.0.1",
+    "wecom-health": "^1.0.0",
+    "wecom-message": "^1.0.0",
+    "wecom-oa": "^1.0.0",
+    "wecom-tag": "^1.0.0",
+    "wecom-user": "^1.0.0",
     "xml2js": "^0.4.23"
+  },
+  "devDependencies": {
+    "assert": "^2.0.0",
+    "mocha": "^10.1.0"
   }
 }

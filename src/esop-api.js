@@ -320,43 +320,6 @@ const idsUserByCondition = async (params, options = {}) => {
 };
 
 /**
-  * 查询ids帐号基本信息
-  * @param {String} userid 帐号id
-  * @returns 帐号信息
-  */
-const idsUserById = async (userid, options = {}) => {
-  const appid = options.appid || ESOP_APPID;
-  const accessToken = options.accessToken || ESOP_TOKEN;
-
-  const url = `${HOST}do/api/call/zhjbxx_tysfrz`;
-  let result = {
-    ret: -1,
-    data: null,
-    msg: '',
-  };
-  try {
-    const res = await fetchWithTimeout(url, {
-      method: 'POST',
-      headers: {
-        appid,
-        accessToken,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        userid,
-      }),
-    });
-    result = await handleEsopResult(res);
-  } catch (error) {
-    // if (error instanceof fetch.AbortError) {
-    warn('ERROR::', error);
-    result.msg = `连接超时(${url})`;
-    // }
-  }
-  return result;
-};
-
-/**
   * 根据院系代码由本科教务系统获取特定年级本科生列表
   * @param {String} yxdm 所在单位代码
   * @param {Number} xznj 现在年级
@@ -572,45 +535,6 @@ const yjsByXh = async (xh) => {
   return result;
 };
 
-/**
- * 根据用户ID，获取与此ID同组的其他帐号。
- * @param {String} userid 用户ID
- * @returns
- * 获取成功返回此ID同组的所有ID的列表；若未绑定其他帐号则返回空数组。
- * 若出现异常则返回null
- */
-const ids_grouped_users = async(userid, options = {}) => {
-  const appid = options.appid || ESOP_APPID;
-  const accessToken = options.accessToken || ESOP_TOKEN;
-
-  const url = `${HOST}do/api/call/tzsyyh_tysfrz`;
-
-  let result = {
-    ret: -1,
-    data: null,
-    msg: '',
-  };
-  try {
-    const res = await fetchWithTimeout(url, {
-      method: 'POST',
-      headers: {
-        appid,
-        accessToken,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        userid,
-      }),
-    });
-    result = await handleEsopResult(res, false);
-  } catch (error) {
-    // if (error instanceof fetch.AbortError) {
-    warn('ERROR::', error);
-    result.msg = `连接超时(${url})`;
-    // }
-  }
-  return result;
-}
 
 /**
  * 获取在籍本科生人数
@@ -719,59 +643,6 @@ const bks_count = async () => {
 }
 
 /**
- * 根据用户ID获取用户已绑定的手机号（若用户设置了身份绑定，则将获取其绑定的账号的手机号）
- * @param {String} userid 用户ID
- * @returns
- * 用于的手机号码，若为绑定手机号，则返回空字符串。
- */
-const ids_get_mobile_phone = async (userid, options) => {
-
-  let result = {
-    ret: -1,
-    data: null,
-    msg: '',
-  };
-
-  // // 优先由给定的帐号获取手机号
-  const result1 = await idsUserById(userid, options);
-  if (!result1.data) {
-    warn(`esopApi.idsUserById(${userid})获取用户信息时发生错误`);
-    return result;
-  }
-  if (result1.data.TELEPHONENUMBER) {
-    return {
-      ret: 0,
-      data: result1.data.TELEPHONENUMBER,
-    };
-  }
-  // 若给定的帐号没有绑定手机号，则检查用户是否进行了身份绑定
-  const result2 = await ids_grouped_users(userid, options);
-  if (!result2.data) {
-    warn(`esopApi.ids_grouped_users(${userid})获取用户绑定信息时发生错误`);
-    return result2;
-  }
-  for (let i = 0; i < result2.data.length; i++) {
-    const user = result2.data[i];
-    if (user.USERID === userid) continue;
-    // const result3 = await idsUserById(user.USERID);
-    // if (!result3.data) {
-    //   warn(`esopApi.idsUserById(${user.USERID})获取用户信息时发生错误`);
-    //   return result;
-    // }
-    if (user.TELEPHONENUMBER) {
-      return {
-        ret: 0,
-        data: user.TELEPHONENUMBER,
-      };
-    }
-  }
-  return {
-    ret: 0,
-    data: '',
-  };
-}
-
-/**
  * 获取一卡通POS机信息（含最后记账日期）
  * @returns 返回POS机列表
  */
@@ -814,14 +685,11 @@ module.exports = {
   rs_zzjg,
   list_rs_zzjzg_by_dw,
   idsUserByCondition,
-  idsUserById,
   list_bks_by_yx_nj,
   bksByXh,
   list_yjs_by_yx_nj,
   yjsByXh,
   query_jzg,
-  ids_grouped_users,
-  ids_get_mobile_phone,
   list_rs_jzg_by_dw,
   bks_count,
   yjs_count,
